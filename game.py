@@ -20,8 +20,8 @@ pygame.display.set_caption("Game")
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
-        self.surf = pygame.Surface((30, 30))
-        self.surf.fill((255,255,0))
+        self.surf = pygame.image.load("pogoman.png").convert_alpha()
+        self.surf = pygame.transform.scale(self.surf, (30, 50))
         self.rect = self.surf.get_rect()
    
         self.pos = vec((10, 360))
@@ -63,8 +63,8 @@ class Platform(pygame.sprite.Sprite):
     def __init__(self, width=None, x=None, y=None):
         super().__init__()
         self.width = width if width else random.randint(50, 100)
-        self.surf = pygame.Surface((self.width, 12))
-        self.surf.fill((0, 255, 0))
+        self.surf = pygame.image.load("platformwide.png").convert_alpha()
+        self.surf = pygame.transform.scale(self.surf, (self.width, 12))
         self.rect = self.surf.get_rect(center=(x if x else random.randint(0, WIDTH - self.width), 
                                                y if y else random.randint(0, HEIGHT - 30)))
 
