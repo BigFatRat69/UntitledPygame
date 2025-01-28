@@ -41,9 +41,9 @@ class Player(pygame.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
          
-        if self.pos.x > WIDTH:
-            self.pos.x = 0
         if self.pos.x < 0:
+            self.pos.x = 0
+        if self.pos.x > WIDTH:
             self.pos.x = WIDTH         
         self.rect.midbottom = self.pos
  
@@ -53,31 +53,42 @@ class Player(pygame.sprite.Sprite):
            self.vel.y = -15
  
     def update(self):
-        hits = pygame.sprite.spritecollide(P1 ,platforms, False)
+        hits = pygame.sprite.spritecollide(P1, platforms, False)
         if P1.vel.y > 0:        
             if hits:
                 self.vel.y = 0
                 self.pos.y = hits[0].rect.top + 1
  
-class platform(pygame.sprite.Sprite):
-    def __init__(self):
+class Platform(pygame.sprite.Sprite):
+    def __init__(self, width=None, x=None, y=None):
         super().__init__()
-        self.surf = pygame.Surface((random.randint(50,100), 12))
-        self.surf.fill((0,255,0))
-        self.rect = self.surf.get_rect(center = (random.randint(0,WIDTH-10),random.randint(0, HEIGHT-30)))
+        self.width = width if width else random.randint(50, 100)
+        self.surf = pygame.Surface((self.width, 12))
+        self.surf.fill((0, 255, 0))
+        self.rect = self.surf.get_rect(center=(x if x else random.randint(0, WIDTH - self.width), 
+                                               y if y else random.randint(0, HEIGHT - 30)))
+
     def move(self):
         pass
- 
- 
+
+#TODO fix platforms spawning on screen instead of outside the screen
 def plat_gen():
-    while len(platforms) < 7 :
-        width = random.randrange(50,100)
-        p  = platform()             
-        p.rect.center = (random.randrange(0, WIDTH - width),random.randrange(-50, 0))
-        platforms.add(p)
-        all_sprites.add(p)
+    while len(platforms) < 7:
+        width = random.randint(50, 100)
+        x = random.randint(0, WIDTH - width)
+        y = random.randint(-50, 0)
+        
+        temp_platform = Platform(width, x, y)
+        
+        if any(temp_platform.rect.colliderect(existing.rect) for existing in platforms):
+            continue 
+        else:
+            platforms.add(temp_platform)
+            all_sprites.add(temp_platform)
+
+        
  
-PT1 = platform()
+PT1 = Platform()
 P1 = Player()
  
 PT1.surf = pygame.Surface((WIDTH, 20))
@@ -91,7 +102,7 @@ platforms = pygame.sprite.Group()
 platforms.add(PT1)
  
 for x in range(random.randint(5, 6)):
-    pl = platform()
+    pl = Platform()
     platforms.add(pl)
     all_sprites.add(pl)
 all_sprites.add(P1)
@@ -117,6 +128,7 @@ while True:
     P1.update()
     plat_gen()
  
+
     for entity in all_sprites:
         displaysurface.blit(entity.surf, entity.rect)
         entity.move()
