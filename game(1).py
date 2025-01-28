@@ -11,12 +11,17 @@ WIDTH = 400
 ACC = 0.5
 FRIC = -0.12
 FPS = 60
+
+score = 0
  
 FramePerSec = pygame.time.Clock()
  
 displaysurface = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game")
- 
+
+pygame.font.init()
+my_font = pygame.font.SysFont("Comic Sans MS", 30)
+
 bg = pygame.image.load("backGround1.png")
 
 class Player(pygame.sprite.Sprite):
@@ -97,6 +102,7 @@ all_sprites = pygame.sprite.Group()
  
 platforms = pygame.sprite.Group()
 platforms.add(PT1)
+
  
 for x in range(random.randint(5, 6)):
     pl = platform()
@@ -116,12 +122,18 @@ while True:
  
     if P1.rect.top <= HEIGHT / 3:
         P1.pos.y += abs(P1.vel.y)
+        score += abs(P1.vel.y)
         for plat in platforms:
             plat.rect.y += abs(P1.vel.y)
             if plat.rect.top >= HEIGHT:
                 plat.kill()
-                
+    
+    
+    scoreText = my_font.render(f"score: {round(score / 100)} m", False, (0,0,0))
+
+
     displaysurface.blit(bg, (0, 0))
+    displaysurface.blit(scoreText, (0,0))
     P1.update()
     plat_gen()
  
