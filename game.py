@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import sys
 import random
+import json
  
 pygame.init()
 vec = pygame.math.Vector2 
@@ -12,8 +13,11 @@ ACC = 0.5
 FRIC = -0.1
 FPS = 60
 
+highScore = 0
 score = 0
 isDead = False
+gameStart = False
+userName = ""
 
 restartMenu = [[], []]
 
@@ -27,6 +31,49 @@ pygame.font.init()
 my_font = pygame.font.SysFont("Comic Sans MS", 30)
 
 bg = pygame.image.load("backGround1.png")
+
+def load_leaderboard():
+    try:
+        with open("leaderboard.json", "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+    
+def save_leaderboard(scores):
+    with open("leaderboard.json", "w") as file:
+        json.dump(scores, file, indent=4)
+
+leaderboard = load_leaderboard()
+
+def input_name():
+    global userName, gameStart
+    input_active = True
+    input_text = ""
+
+    while input_active:
+        displaysurface.fill((255, 255, 255))
+        prompt = my_font.render("Syötä nimesi: ", True, (0, 0, 0))
+        name_display = my_font.render(input_text, True, (0, 0, 255))
+
+        displaysurface.blit(prompt, (WIDTH//4, HEIGHT//3))
+        displaysurface.blit(name_display, (WIDTH//4, HEIGHT//2))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN:
+                if event.key == K_RETURN:
+                    if input_text.strip():
+                        userName = input_text.strip()
+                        gameStart = True
+                        input_active = False
+                elif event.key == K_BACKSPACE:
+                    input_text = input_text[:-1]
+                else:
+                    input_text += event.unicode
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -65,7 +112,8 @@ class Player(pygame.sprite.Sprite):
         if self.pos.x > WIDTH:
             self.pos.x = 0
         if self.pos.x < 0:
-            self.pos.x = WIDTH         
+            self.pos.x = WIDTH     
+
         self.rect.midbottom = self.pos
 
     def jump(self): 
@@ -137,6 +185,15 @@ def plat_gen_restart():
         all_sprites.add(p)
 
 def death():
+    global isDead, score, highScore
+    isDead = True
+    if score > highScore:
+        highScore = score
+
+    leaderboard.append({"name": userName, "score": round(score / 100)})
+    leaderboard.sort(key=lambda x: x["score"], reverse=True)
+    leaderboard[:] = leaderboard[:5]
+    save_leaderboard(leaderboard)
     plat_gen_restart()
     
 
@@ -161,6 +218,8 @@ for x in range(random.randint(5, 6)):
     all_sprites.add(pl)
 all_sprites.add(P1)
 all_sprites.add(PT1)
+
+input_name()
  
 while True:
     for event in pygame.event.get():
@@ -168,10 +227,11 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.KEYDOWN:    
-            if isDead == True:
+            if isDead:
                 P1 = Player()
                 all_sprites.add(P1)
                 isDead = False
+                score = 0
             if event.key == pygame.K_SPACE:
                 P1.jump()
         if event.type == pygame.KEYUP:
@@ -192,23 +252,24 @@ while True:
         restartMenu[1] = [respawnMainText, (WIDTH/2 - respawnMainText.get_width()/2, 250)]
         score = 0
         death()
-
-    
-
-    scoreText = my_font.render(f"score: {round(score / 100)} m", False, (0,0,0))
-
+    scoreText = my_font.render(f"Score: {round(score / 100)} m", False, (0,0,0))
 
     displaysurface.blit(bg, (0, 0))
-
-    if isDead == False:
-        displaysurface.blit(scoreText, (0,0))
+    if not isDead:
+        displaysurface.blit(scoreText, (10,10))
         P1.isFalling()
         P1.update()
         plat_gen()
 
-    elif isDead == True:
-        for kuva in restartMenu:
-            displaysurface.blit(kuva[0], kuva[1])
+
+    else:
+        displaysurface.blit(my_font.render("Game Over!", True, (255, 0, 0)), (WIDTH // 4, HEIGHT // 4))
+        displaysurface.blit(my_font.render("Press any key to restart", True, (0, 0, 0)), (WIDTH // 8, HEIGHT // 3))
+
+        y_offset = HEIGHT // 2
+        for idx, entry in enumerate(leaderboard):
+            leaderboard_text = my_font.render(f"{idx+1}. {entry['name']} - {entry['score']} m", True, (0, 0, 0))
+            displaysurface.blit(leaderboard_text, (WIDTH // 6, y_offset + idx * 30))
  
     for entity in all_sprites:
         displaysurface.blit(entity.surf, entity.rect)
