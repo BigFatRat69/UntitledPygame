@@ -59,11 +59,11 @@ class Player(pygame.sprite.Sprite):
         if self.pos.x < 0:
             self.pos.x = WIDTH         
         self.rect.midbottom = self.pos
- 
+
     def jump(self): 
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if hits and not self.isJumping:
-           self.jumping = True
+           self.isJumping = True
            self.vel.y = -15
  
     def cancelJump(self):
@@ -73,34 +73,42 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         hits = pygame.sprite.spritecollide(P1 ,platforms, False)
-        if P1.vel.y > 0:        
+        if self.vel.y > 0:        
             if hits:
-                self.vel.y = 0
-                self.pos.y = hits[0].rect.top + 1
+                lowest = min(hits, key=lambda platform: platform.rect.top)
+                if self.pos.y < lowest.rect.bottom:
+                    self.pos.y = lowest.rect.top + 1
+                    self.vel.y = 0
+                    self.isJumping = False
  
 class platform(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         kumpi = random.randint(1, 2)
-        
         if kumpi == 1:
-            self.surf = pygame.image.load("platformThin.png")
+            self.surf = pygame.image.load("platformThin.png").convert_alpha()
         else:
-            self.surf = pygame.image.load("platformWide.png")
+            self.surf = pygame.image.load("platformWide.png").convert_alpha()
 
-        self.rect = self.surf.get_rect(center = (random.randint(0,WIDTH-10),random.randint(0, HEIGHT-30)))
-        
+        self.rect = self.surf.get_rect(topleft = (random.randint(0,WIDTH-10),random.randint(0, HEIGHT-30)))
+
     def move(self):
         pass
  
  
 def plat_gen():
-    while len(platforms) < 7 :
-        width = random.randrange(50,100)
-        p  = platform()             
-        p.rect.center = (random.randrange(0, WIDTH - width),random.randrange(-50, 0))
-        platforms.add(p)
-        all_sprites.add(p)
+    count = 0
+    while len(platforms) < 7:
+        x = random.randint(0, WIDTH)
+        y = random.randint(-50, 0)
+        temp_platform = platform()
+        temp_platform.rect.center = (x, y)
+
+        if any(temp_platform.rect.colliderect(existing.rect) for existing in platforms):
+            continue
+        else:
+            platforms.add(temp_platform)
+            all_sprites.add(temp_platform)
 
 def plat_gen_restart():
     for i in platforms:
@@ -158,7 +166,10 @@ while True:
                 isDead = False
             if event.key == pygame.K_SPACE:
                 P1.jump()
- 
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                P1.cancelJump()
+
     if P1.rect.top <= HEIGHT / 3:
         P1.pos.y += abs(P1.vel.y)
         score += abs(P1.vel.y)
