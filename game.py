@@ -39,10 +39,18 @@ class Player(pygame.sprite.Sprite):
         self.vel = vec(0,0)
         self.acc = vec(0,0)
         self.isJumping = False
+        self.isFallingVal = False
 
+    def isFalling(self):
+        if self.vel.y > 1:
+            isFallingVal = True
+            print("Is falling True")
+        elif self.vel.y < -1:
+            isFallingVal = False
+            print("Is falling False")
 
     def move(self):
-        self.acc = vec(0,0.5)
+        self.acc = vec(0,0.15)
         pressed_keys = pygame.key.get_pressed()
                 
         if pressed_keys[K_LEFT]:
@@ -64,7 +72,7 @@ class Player(pygame.sprite.Sprite):
         hits = pygame.sprite.spritecollide(self, platforms, False)
         if hits and not self.isJumping:
            self.isJumping = True
-           self.vel.y = -15
+           self.vel.y = -12
  
     def cancelJump(self):
         if self.isJumping:
@@ -178,7 +186,7 @@ while True:
             if plat.rect.top >= HEIGHT:
                 plat.kill()
     
-    if P1.rect.bottom > HEIGHT and isDead == False:      
+    if P1.rect.bottom > HEIGHT + 40 and isDead == False:      
         isDead = True
         restartMenu[0] = [scoreText, (WIDTH/2 - scoreText.get_width()/2, 150)]
         restartMenu[1] = [respawnMainText, (WIDTH/2 - respawnMainText.get_width()/2, 250)]
@@ -194,6 +202,7 @@ while True:
 
     if isDead == False:
         displaysurface.blit(scoreText, (0,0))
+        P1.isFalling()
         P1.update()
         plat_gen()
 
