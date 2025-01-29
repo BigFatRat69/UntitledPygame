@@ -9,7 +9,7 @@ vec = pygame.math.Vector2
 HEIGHT = 450
 WIDTH = 400
 ACC = 0.5
-FRIC = -0.12
+FRIC = -0.1
 FPS = 60
  
 FramePerSec = pygame.time.Clock()
@@ -27,7 +27,9 @@ class Player(pygame.sprite.Sprite):
         self.pos = vec((10, 360))
         self.vel = vec(0,0)
         self.acc = vec(0,0)
- 
+        self.isJumping = False
+
+
     def move(self):
         self.acc = vec(0,0.5)
         pressed_keys = pygame.key.get_pressed()
@@ -47,11 +49,17 @@ class Player(pygame.sprite.Sprite):
             self.pos.x = WIDTH         
         self.rect.midbottom = self.pos
  
-    def jump(self):
+    def jump(self): 
         hits = pygame.sprite.spritecollide(self, platforms, False)
-        if hits:
+        if hits and not self.isJumping:
+           self.jumping = True
            self.vel.y = -15
  
+    def cancelJump(self):
+        if self.isJumping:
+            if self.vel.y < -3:
+                self.vel.y = -5
+
     def update(self):
         hits = pygame.sprite.spritecollide(P1, platforms, False)
         if P1.vel.y > 0:        
@@ -75,8 +83,8 @@ class Platform(pygame.sprite.Sprite):
 def plat_gen():
     while len(platforms) < 7:
         width = random.randint(50, 100)
-        x = random.randint(0, WIDTH - width)
-        y = random.randint(-50, 0)
+        x = random.randint(10, WIDTH - width)
+        y = random.randint(-40, 0)
         
         temp_platform = Platform(width, x, y)
         
@@ -116,7 +124,14 @@ while True:
         if event.type == pygame.KEYDOWN:    
             if event.key == pygame.K_SPACE:
                 P1.jump()
- 
+                P1.isJumping = True
+                print("Is Jumping True")
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                P1.cancelJump()
+                P1.isJumping = False
+                print("Is Jumping False")
+
     if P1.rect.top <= HEIGHT / 3:
         P1.pos.y += abs(P1.vel.y)
         for plat in platforms:
