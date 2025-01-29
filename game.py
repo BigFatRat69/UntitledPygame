@@ -246,12 +246,9 @@ while True:
             if plat.rect.top >= HEIGHT:
                 plat.kill()
     
-    if P1.rect.bottom > HEIGHT + 40 and isDead == False:      
-        isDead = True
-        restartMenu[0] = [scoreText, (WIDTH/2 - scoreText.get_width()/2, 150)]
-        restartMenu[1] = [respawnMainText, (WIDTH/2 - respawnMainText.get_width()/2, 250)]
-        score = 0
+    if P1.rect.bottom > HEIGHT + 40 and not isDead:      
         death()
+
     scoreText = my_font.render(f"Score: {round(score / 100)} m", False, (0,0,0))
 
     displaysurface.blit(bg, (0, 0))
@@ -260,8 +257,6 @@ while True:
         P1.isFalling()
         P1.update()
         plat_gen()
-
-
     else:
         displaysurface.blit(my_font.render("Game Over!", True, (255, 0, 0)), (WIDTH // 4, HEIGHT // 4))
         displaysurface.blit(my_font.render("Press any key to restart", True, (0, 0, 0)), (WIDTH // 8, HEIGHT // 3))
