@@ -77,7 +77,7 @@ def input_name():
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
-        self.surf = pygame.image.load("assets/pogoman.png")
+        self.surf = pygame.image.load("pogoman.png")
         self.surf = pygame.transform.scale(self.surf, (22, 50))
         self.rect = self.surf.get_rect()
    
@@ -135,9 +135,9 @@ class platform(pygame.sprite.Sprite):
         super().__init__()
         kumpi = random.randint(1, 2)
         if kumpi == 1:
-            self.surf = pygame.image.load("assets/platformThin.png").convert_alpha()
+            self.surf = pygame.image.load("platformThin.png").convert_alpha()
         else:
-            self.surf = pygame.image.load("assets/platformWide.png").convert_alpha()
+            self.surf = pygame.image.load("platformWide.png").convert_alpha()
 
         self.rect = self.surf.get_rect(topleft = (random.randint(0,WIDTH-10),random.randint(0, HEIGHT-30)))
 
