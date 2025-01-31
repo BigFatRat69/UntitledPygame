@@ -148,7 +148,7 @@ class platform(pygame.sprite.Sprite):
 def plat_gen():
     while len(platforms) < 7:
         x = random.randint(0, WIDTH)
-        y = random.randint(-50, 0)
+        y = random.randint(-70, 0)
         temp_platform = platform()
         temp_platform.rect.center = (x, y)
 
