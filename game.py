@@ -30,17 +30,17 @@ pygame.display.set_caption("Game")
 pygame.font.init()
 my_font = pygame.font.SysFont("Comic Sans MS", 30)
 
-bg = pygame.image.load("assets/backGround1.png")
+bg = pygame.image.load("backGround1.png")
 
 def load_leaderboard():
     try:
-        with open("assets/leaderboard.json", "r") as file:
+        with open("leaderboard.json", "r") as file:
             return json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         return []
     
 def save_leaderboard(scores):
-    with open("assets/leaderboard.json", "w") as file:
+    with open("leaderboard.json", "w") as file:
         json.dump(scores, file, indent=4)
 
 leaderboard = load_leaderboard()
