@@ -65,11 +65,10 @@ def input_name():
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN:
-                if event.key == K_RETURN:
-                    if input_text.strip():
-                        userName = input_text.strip()
-                        gameStart = True
-                        input_active = False
+                if event.key == K_RETURN and input_text.strip():
+                    userName = input_text.strip()
+                    gameStart = True
+                    input_active = False
                 elif event.key == K_BACKSPACE:
                     input_text = input_text[:-1]
                 else:
@@ -87,14 +86,6 @@ class Player(pygame.sprite.Sprite):
         self.acc = vec(0,0)
         self.isJumping = False
         self.jump_cooldown = 0
-
-    def isFalling(self):
-        if self.vel.y > 1:
-            isFallingVal = True
-            print("Is falling True")
-        elif self.vel.y < -1:
-            isFallingVal = False
-            print("Is falling False")
 
     def move(self):
         self.acc = vec(0,0.15)
@@ -132,13 +123,12 @@ class Player(pygame.sprite.Sprite):
         if self.jump_cooldown > 0:
             self.jump_cooldown -= 1
         hits = pygame.sprite.spritecollide(P1 ,platforms, False)
-        if self.vel.y > 0:        
-            if hits:
-                lowest = min(hits, key=lambda platform: platform.rect.top)
-                if self.pos.y < lowest.rect.bottom:
-                    self.pos.y = lowest.rect.top + 1
-                    self.vel.y = 0
-                    self.isJumping = False
+        if self.vel.y > 0 and hits:        
+            lowest = min(hits, key=lambda platform: platform.rect.top)
+            if self.pos.y < lowest.rect.bottom:
+                self.pos.y = lowest.rect.top + 1
+                self.vel.y = 0
+                self.isJumping = False
  
 class platform(pygame.sprite.Sprite):
     def __init__(self):
@@ -156,7 +146,6 @@ class platform(pygame.sprite.Sprite):
  
  
 def plat_gen():
-    count = 0
     while len(platforms) < 7:
         x = random.randint(0, WIDTH)
         y = random.randint(-50, 0)
@@ -237,8 +226,7 @@ while True:
                 score = 0
             if event.key == pygame.K_SPACE:
                 P1.jump()
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_SPACE:
+        if event.type == pygame.KEYUP and event.key == pygame.K_SPACE:
                 P1.cancelJump()
 
     if P1.rect.top <= HEIGHT / 3:
@@ -257,7 +245,6 @@ while True:
     displaysurface.blit(bg, (0, 0))
     if not isDead:
         displaysurface.blit(scoreText, (10,10))
-        P1.isFalling()
         P1.update()
         plat_gen()
     else:
