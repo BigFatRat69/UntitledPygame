@@ -130,7 +130,7 @@ class Player(pygame.sprite.Sprite):
                 self.vel.y = 0
                 self.isJumping = False
  
-class platform(pygame.sprite.Sprite):
+class Platform(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         kumpi = random.randint(1, 2)
@@ -149,7 +149,7 @@ def plat_gen():
     while len(platforms) < 7:
         x = random.randint(0, WIDTH)
         y = random.randint(-70, 0)
-        temp_platform = platform()
+        temp_platform = Platform()
         temp_platform.rect.center = (x, y)
 
         if any(temp_platform.rect.colliderect(existing.rect) for existing in platforms):
@@ -161,7 +161,7 @@ def plat_gen():
 def plat_gen_restart():
     for i in platforms:
         i.kill()
-    PT1 = platform()
+    PT1 = Platform()
 
     PT1.surf = pygame.Surface((WIDTH, 20))
     PT1.surf.fill((255,0,0))
@@ -171,7 +171,7 @@ def plat_gen_restart():
     all_sprites.add(PT1)
     while len(platforms) < 7:
         width = random.randrange(50,100)
-        p  = platform()             
+        p  = Platform()             
         p.rect.center = (random.randrange(0, WIDTH - width),random.randrange(-50, 400))
         platforms.add(p)
         all_sprites.add(p)
@@ -189,7 +189,7 @@ def death():
     plat_gen_restart()
     
 
-PT1 = platform()
+PT1 = Platform()
 P1 = Player()
 
 PT1.surf = pygame.Surface((WIDTH, 20))
@@ -205,7 +205,7 @@ platforms.add(PT1)
 respawnMainText = my_font.render(f"Press any button to restart!", False, (0,0,0))
  
 for x in range(random.randint(5, 6)):
-    pl = platform()
+    pl = Platform()
     platforms.add(pl)
     all_sprites.add(pl)
 all_sprites.add(P1)
